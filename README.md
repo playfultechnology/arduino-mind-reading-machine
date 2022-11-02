@@ -9,6 +9,10 @@ There are plenty of software implementations of the machine, including:
  - http://success-equation.com/mind_reader.html
  - http://www.cs.williams.edu/~bailey/applets/MindReader/
  - https://web.media.mit.edu/~guysatat/MindReader/index.html
+ - https://github.com/accolver/mind-reader/tree/master/src/cs235/mindreader
+ - https://alastaira.wordpress.com/2014/03/15/a-simple-mind-reading-machine/
+ - https://web.archive.org/web/20070113062539/http://seed.ucsd.edu/~mindreader/mindreader.tar
+ - https://gist.github.com/Punit-Choudhary/ffe0a3596ef39366393ba603f5126a10
 
 However, I wanted to create a physical hardware implementation, inspired by the original design of the machine:
 ![David Hagelbarger's "Outguessing Machine"](images/hagelbarger-outguessing-machine.jpeg)
