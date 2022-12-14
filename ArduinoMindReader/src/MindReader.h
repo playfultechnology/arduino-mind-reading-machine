@@ -1,6 +1,8 @@
 #ifndef MINDREADER_H_
 #define MINDREADER_H_
 
+#define NUM_PREDICTORS 18
+
 #include "Arduino.h"
 #include "Predictor.h"
 

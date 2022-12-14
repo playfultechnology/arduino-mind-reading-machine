@@ -5,15 +5,15 @@ Predictor::Predictor(){};
 Predictor::Predictor(uint8_t memoryLength, PredictorType predictorType, DataType dataType){
 	m_memoryLength = memoryLength;  //history length to look at
 	m_predictorType = predictorType;
-  m_dataType = dataType;          // REGULAR_DATA_SERIES means to operate on the direct input, FLIPPING_DATA_SERIES means to operate on the flipping series
-  m_predictionsHistory = {};	
+	m_dataType = dataType;          // REGULAR_DATA_SERIES means to operate on the input value, FLIPPING_DATA_SERIES means to operate on the changes in input value
+	m_predictionsHistory = {};	
 };
 
 uint8_t Predictor::getPastAccuracy(int8_t* userMoves, uint8_t numTurns) {
 	uint8_t accuracy = 0;
-  for(int i=0; i<numTurns; i++) {
+	for(int i=0; i<numTurns; i++) {
 		accuracy += abs(userMoves[i] - m_predictionsHistory[i]);
-  }
+	}
 	return accuracy;	
 };
 int8_t Predictor::makePrediction(int8_t* userMoves, int8_t* userMovesFlipping, int8_t* wins, uint8_t numTurns){
@@ -111,7 +111,51 @@ int8_t Predictor::makePrediction(int8_t* userMoves, int8_t* userMovesFlipping, i
 		score /= (2*m_memoryLength); 
 		return prediction * score * userMoves[numTurns-1] * -1; // flip or not the last user move;	
 	}
-  else if(m_predictorType == PredictorType::REACTIVE && m_dataType == USER_REACTIVE) {  //calculate the mean of the last memoryLength moves
+  else if(m_predictorType == PredictorType::REACTIVE && m_dataType == USER_REACTIVE) {
+  
+	// Copy an array of items from startIndex to endIndex
+	uint8_t* partOfMoves = malloc(sizeof(uint8_t) * m_memoryLength);;
+	memcpy(partOfMoves, &userMoves[numTurns-1 - m_memoryLength], m_memoryLength);
+	int8_t* partOfWins = malloc(sizeof(int8_t) * m_memoryLength);
+	memcpy(partOfWins, &wins[numTurns-1 - m_memoryLength], m_memoryLength);
+  
+	// Merge the two arrays
+	int8_t* lastState = malloc(sizeof(int8_t) * 2 * m_memoryLength);
+	memcpy(lastState, partOfWins, m_memoryLength);
+	memcpy(&lastState[m_memoryLength], partOfMoves, m_memoryLength);
+  
+	// Create a unique index to represent the current state
+	int lastStateInd = 0;
+	for(int i=0; i<m_memoryLength*2; i++){
+		if(lastState[i]==1) {
+			lastStateInd += pow(2, i);
+		}
+	}
+	// What did the user do last time this state occurred?
+	int8_t lastStateResult = userMoves[numTurns-1];
+	
+	int numStates = pow(2, 2*m_memoryLength-1);
+	// TODO This needs to be global/static
+	uint8_t stateMachine[numStates];
+	memset(stateMachine, 0, numStates);
+	
+	// Now set confidence with which we think the user will exhibit the same behaviour again
+    if (stateMachine[lastStateInd] == 0) { // No prior info of this state having occurred
+		stateMachine[lastStateInd] = lastStateResult*0.3;
+    }
+    else if (stateMachine[lastStateInd] == lastStateResult*0.3) {  // We've seen this pattern once before so strengthen prediction
+		stateMachine[lastStateInd] = lastStateResult*0.8;
+    }
+	else if (stateMachine[lastStateInd] == lastStateResult*0.8) { // We've seen this pattern twice before so strengthen prediction
+		stateMachine[lastStateInd] = lastStateResult*1;
+    }
+	else if (stateMachine[lastStateInd] == lastStateResult*1) { // User has already repeated this pattern >2 times in the past - maximum confidence it will occur again
+		stateMachine[lastStateInd] = lastStateResult*1;
+    }
+    else {  // Last time this pattern occurred, the user did something else, so delete assumptions
+		stateMachine[lastStateInd] = 0;
+    }
+	
 		;//prediction = this.childPredictor(userMovesFlipping, wins) * userMoves[userMoves.length-1] * -1; // flip or not the last user move
 		/*
 		constructor(memoryLength, dataType) {
