@@ -18,10 +18,10 @@ class MindReader {
 	
 		void updateBotPrediction();	
 	
-		int8_t *m_userMoves;   //holds past user moves
-		int8_t *m_userMovesFlipping;   //holds past user moves in the flipping case (if current=last then 1 else -1)
-		int8_t *m_botMoves;    //holds past bot moves  (including the current prediction, so its size is always gameTurn+1)
-		int8_t *m_wins;        // holds the history of who won
+		int8_t *m_userMoves;   // History of user moves (-1 or 1)
+		int8_t *m_userMovesFlipping;   // History of user move changes (if same as previous then 1 else -1)
+		int8_t *m_botMoves;    // History of bot moves  (including the current prediction, so its size is always gameTurn+1)
+		int8_t *m_wins;        // History of who won (if bot successfully predicts then 1 else -1)
 		
 		Predictor *m_predictors;
 			

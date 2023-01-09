@@ -3,7 +3,6 @@
 #include "Arduino.h"
 
 #define ARRAY_SIZE(array) ((sizeof(array))/(sizeof(array[0])))
-
 #define USERWIN -1
 #define BOTWIN  1
 

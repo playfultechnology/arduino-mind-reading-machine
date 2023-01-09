@@ -29,5 +29,8 @@ class Predictor {
 		PredictorType m_predictorType;
 		DataType m_dataType; // REGULAR_DATA_SERIES operates on direct input, FLIPPING_DATA_SERIES operates on flipping series
 		int8_t* m_predictionsHistory; // The bot's prediction of the player's move in each turn 
+
+		// This is only used by the REACTIVE predictor type - should probably be defined in a subclass
+		uint8_t* stateMachine;
 };
 #endif
